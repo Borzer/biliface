@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link rel="shortcut icon" href="https://www.easyicon.net/api/resizeApi.php?id=1235943&size=128"/>
+		<!-- 引入样式 -->
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		<!-- import Vue before Element -->
+		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<!-- import JavaScript -->
+        <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+		<title>B站封面提取</title>
+		<style>
+			.el-col {
+		    border-radius: 4px;
+		  }
+		  .grid-content {
+		    border-radius: 4px;
+		    min-height: 36px;
+			margin-top: 10px;
+		  }
+		  #app{
+			  margin-top: 80px;
+		  }
+		</style>
+	</head>
+	<body>
+		<div id="app">
+            {% csrf_token %}
+			<div class="getid">
+				<el-row :gutter="10">
+					<el-col :span="24">
+						<div style="text-align: center; font-size: 30px;">B站封面提取</div>
+					</el-col>
+					<el-col :xs="4" :sm="8" :lg="10">
+						<div class="grid-content"></div>
+					</el-col>
+					<el-col :xs="12" :sm="6"  :lg="3">
+						<div class="grid-content">
+							<el-input placeholder="请输入AV号" v-model="input" clearable name='uid' id="input1">
+							</el-input>
+						</div>
+					</el-col>
+					<el-col :xs="1" :sm="6"  :lg="3">
+						<div class="grid-content">
+							  <el-button type="primary" round class="btn1">提交</el-button>
+						</div>
+					</el-col>
+				</el-row>
+
+			</div>
+			<div class="succeed">
+				<el-row :gutter="10">
+					<el-col :xs="0" :sm="5"  :lg="8" >
+						<div class="grid-content"></div>
+					</el-col>
+					<el-col :xs="24" :sm="14" :lg="8">
+						<div class="grid-content">
+							<el-alert title="{{info}}" type="{{status}}" id="msg"><a target="_blank" rel="noreferrer" style="text-decoration: none;" href="{{imgurl}}">{{imgurl}}</a>
+							</el-alert>
+						</div>
+					</el-col>			
+				</el-row>
+				
+            </div>
+			
+		</div>
+		<script type="text/javascript">
+			var vm = new Vue({
+				el: '#app',
+				data:{
+					input:'',
+					show:true
+				},
+			})
+        </script>
+        <script>   
+            $('.btn1').click(function(){
+				$('#msg').css('display','block')
+				aid = $('#input1').val()
+				$.post("{% url 'bilibili' %}", {"aid": aid, 'csrfmiddlewaretoken':$('[name="csrfmiddlewaretoken"]').val()}, function (data) {
+					console.log(data)
+                   if(data['status'] == 'success'){
+						$('#msg a').text(data['imgurl'])
+                   		$('#msg a').attr('href',data['imgurl'])
+                   		$('.el-alert__content span').text(data['info'])
+						$('#msg').removeClass('el-alert--error')
+						$('#msg').addClass('el-alert--success')
+				   }
+				   if(data['status'] == 'error'){
+						$('#msg a').text(data['imgurl'])
+                   		$('#msg a').attr('href',data['imgurl'])
+                   		$('.el-alert__content span').text(data['info'])
+						$('#msg').removeClass('el-alert--success')
+						$('#msg').addClass('el-alert--error')
+				   }
+                }, "json")
+            })
+        </script>
+	</body>
+</html>
